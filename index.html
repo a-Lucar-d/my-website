@@ -9,30 +9,51 @@
 <body>
   <header>
     <h1>ESP32 TCP Server Project</h1>
-    <p class="tagline">A lightweight TCP server built on ESP32</p>
+    <p class="tagline">A simple TCP echo server built using ESP-IDF on the ESP32</p>
   </header>
 
   <section class="overview">
     <h2>Project Overview</h2>
-    <p>This project showcases how to build a TCP server using the ESP32 microcontroller. Clients on the same network can communicate with it using tools like Netcat. The ESP32 runs in Access Point + Station mode and dynamically connects to routers.</p>
+    <p>This project implements a TCP echo server on an ESP32 development board using the ESP-IDF framework. The ESP32 connects to a Wi-Fi network in Station mode, creates a listening TCP socket, accepts client connections, and echoes back any data received. The client can connect to the ESP32 server using tools like Netcat on the same local network.</p>
   </section>
 
   <section class="gallery">
     <h2>Gallery</h2>
-    <img src="images/screenshot1.jpeg" alt="ESP32 TCP output" />
-    <p class="caption">Output shown in Netcat after connecting to the ESP32</p>
+    <img src="images/screenshot1.jpeg" alt="ESP32 TCP Server Screenshot" />
+    <p class="caption">Netcat terminal interacting with ESP32 TCP server</p>
   </section>
 
   <section class="code">
     <h2>Code Snippet</h2>
     <pre><code>
 void tcp_server_task(void *pvParameters) {
-  char rx_buffer[128];
-  struct sockaddr_in server_addr, client_addr;
+  ...
+  client_socket = accept(server_socket, ...);
+  recv(client_socket, rx_buffer, ...);
+  send(client_socket, rx_buffer, len, 0);
   ...
 }
     </code></pre>
-    <a href="code/tcp_server.c" download>📥 Full Source Code</a>
+    <a href="code/tcp_server.c" download>📥 Download Full Source Code</a>
+  </section>
+
+  <section class="breakdown">
+    <h2>Code Breakdown</h2>
+
+    <h3>1. Wi-Fi Initialization (`wifi_init_sta`)</h3>
+    <p>The ESP32 connects to a Wi-Fi network using the SSID and password defined at the top. It registers event handlers to automatically reconnect if disconnected and sets a flag when connected.</p>
+
+    <h3>2. Event Handling (`wifi_event_handler`)</h3>
+    <p>This function handles Wi-Fi and IP-related events such as connection, disconnection, and IP assignment. It ensures the ESP32 reconnects if the connection drops and logs the assigned IP address.</p>
+
+    <h3>3. TCP Server Setup (`tcp_server_task`)</h3>
+    <p>The ESP32 creates a TCP socket using the `socket()` API. It binds the socket to port 3333, listens for incoming connections, and accepts clients in a loop. For each client, it receives data, logs it, and sends it back (echo).</p>
+
+    <h3>4. Data Communication</h3>
+    <p>The server uses `recv()` to receive messages from the client and `send()` to echo them back. If the client disconnects, the connection is closed gracefully, and the server continues listening for new clients.</p>
+
+    <h3>5. Main Application (`app_main`)</h3>
+    <p>This is the main entry point. It initializes NVS, network stack, event loop, connects to Wi-Fi, and launches the TCP server task.</p>
   </section>
 
   <footer>
@@ -40,4 +61,3 @@ void tcp_server_task(void *pvParameters) {
   </footer>
 </body>
 </html>
-
