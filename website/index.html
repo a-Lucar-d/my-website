@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESP32 TCP Server Project</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>ESP32 TCP Server Project</h1>
+    <p class="tagline">A lightweight TCP server built on ESP32</p>
+  </header>
+
+  <section class="overview">
+    <h2>Project Overview</h2>
+    <p>This project showcases how to build a TCP server using the ESP32 microcontroller. Clients on the same network can communicate with it using tools like Netcat. The ESP32 runs in Access Point + Station mode and dynamically connects to routers.</p>
+  </section>
+
+  <section class="gallery">
+    <h2>Gallery</h2>
+    <img src="images/screenshot1.jpeg" alt="ESP32 TCP output" />
+    <p class="caption">Output shown in Netcat after connecting to the ESP32</p>
+  </section>
+
+  <section class="code">
+    <h2>Code Snippet</h2>
+    <pre><code>
+void tcp_server_task(void *pvParameters) {
+  char rx_buffer[128];
+  struct sockaddr_in server_addr, client_addr;
+  ...
+}
+    </code></pre>
+    <a href="code/tcp_server.c" download>📥 Full Source Code</a>
+  </section>
+
+  <footer>
+    <p>Made by Adityakrishna Vinod | Hosted on <a href="https://github.com" target="_blank">GitHub Pages</a></p>
+  </footer>
+</body>
+</html>
+
