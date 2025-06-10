@@ -26,8 +26,7 @@
   <section class="code">
     <h2>Code Snippet</h2>
     <pre><code>
-void tcp_server_task(void *pvParameters) {
-  #include <string.h>
+#include <string.h>
 #include <sys/param.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -174,7 +173,6 @@ void app_main(void) {
     xTaskCreate(tcp_server_task, "tcp_server", 4096, NULL, 5, NULL);
 }
 
-}
     </code></pre>
     <a href="code/tcp_server.c" download>📥 Download Full Source Code</a>
   </section>
