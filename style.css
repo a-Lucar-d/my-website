@@ -1,53 +1,223 @@
+/* ---
+   ESP32 TCP Server Website
+   Theme: Material 3 Dark (Smooth Black Aesthetic)
+   --- */
+
+/* Google Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+/* --- Root Variables for Theming --- */
+:root {
+  --color-background: #121212; /* Off-black for the main background */
+  --color-surface: #1E1E1E;    /* Slightly lighter surface for cards, headers */
+  --color-primary: #BB86FC;   /* A vibrant accent color (Material Purple) */
+  --color-secondary: #03DAC6;  /* A secondary accent for highlights */
+  --color-on-background: #E0E0E0; /* Text color on dark background */
+  --color-on-surface: #FFFFFF;    /* Primary text color on cards/surfaces */
+  --color-on-surface-variant: #B0B0B0; /* Secondary text color for captions, etc. */
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --code-background: #282A36; /* Dracula-like theme for code blocks */
+}
+
+/* --- General Reset and Typography --- */
 body {
+  font-family: 'Roboto', sans-serif;
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: #f4f4f4;
-  color: #333;
-  line-height: 1.6;
+  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  line-height: 1.7;
 }
 
+h1, h2, h3, h4 {
+  font-weight: 500;
+  color: var(--color-on-surface);
+}
+
+p {
+  font-weight: 300;
+  font-size: 1.05rem;
+}
+
+/* --- Header and Navigation --- */
 header {
-  background: #1e3a8a;
-  color: white;
-  padding: 2rem;
-  text-align: center;
+  background-color: var(--color-surface);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  padding: 1.25rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.tagline {
-  font-style: italic;
-  font-size: 1.2rem;
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin: 0;
 }
 
-section {
-  padding: 2rem;
-  max-width: 800px;
-  margin: auto;
+nav a {
+  margin-left: 1.5rem;
+  text-decoration: none;
+  color: var(--color-on-surface-variant);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 20px; /* Pill shape for nav items */
+  transition: all 0.3s ease;
 }
 
-.gallery img {
-  max-width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+nav a:hover {
+  color: var(--color-on-surface);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
-.caption {
-  text-align: center;
-  font-size: 0.9rem;
-  color: #666;
+nav a.active {
+  color: var(--color-background);
+  background-color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* --- Main Content and Layout --- */
+.container {
+  max-width: 1100px;
+  margin: 2.5rem auto;
+  padding: 0 1.5rem;
+}
+
+.card {
+  background-color: var(--color-surface);
+  border-radius: 16px; /* Material 3 style rounded corners */
+  padding: 2.5rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  margin-bottom: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px var(--shadow-color);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 2rem;
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+/* --- Code Styling --- */
+pre, code {
+  font-family: 'Fira Code', 'Courier New', monospace;
 }
 
 pre {
-  background: #222;
-  color: #f1f1f1;
-  padding: 1rem;
+  background-color: var(--code-background);
+  padding: 1.5rem;
+  border-radius: 12px;
   overflow-x: auto;
-  border-radius: 6px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #f8f8f2;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-footer {
-  text-align: center;
+/* Inline code */
+:not(pre) > code {
+    background-color: rgba(187, 134, 252, 0.2);
+    color: var(--color-primary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+/* --- Gallery Grid --- */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.image-grid figure {
+  margin: 0;
+  background-color: var(--color-background);
   padding: 1rem;
-  background: #e5e7eb;
-  font-size: 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
+.image-grid figure:hover {
+  border-color: var(--color-primary);
+}
+
+.image-grid img {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+}
+
+.image-grid figcaption {
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  color: var(--color-on-surface-variant);
+  text-align: center;
+  font-weight: 400;
+}
+
+/* --- Lists --- */
+ul, ol {
+    padding-left: 2rem;
+}
+
+li {
+    margin-bottom: 1rem;
+}
+
+/* --- Links & Buttons --- */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+.download-link {
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.download-link:hover {
+  background-color: var(--color-secondary);
+  box-shadow: 0 4px 10px rgba(3, 218, 198, 0.3);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+/* --- Footer --- */
+footer {
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 2rem;
+  margin-top: 3rem;
+  color: var(--color-on-surface-variant);
+  background-color: var(--color-surface);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

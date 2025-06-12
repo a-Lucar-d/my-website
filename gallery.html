@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project Gallery</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Fira+Code&display=swap" rel="stylesheet">
+  <style>
+    /* --- Modal (Lightbox) Styles --- */
+    
+    /* The Modal Background */
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 2000; 
+      padding-top: 60px; 
+      left: 0;
+      top: 0;
+      width: 100%; 
+      height: 100%; 
+      overflow: auto; 
+      background-color: rgb(0,0,0); 
+      background-color: rgba(0,0,0,0.9); 
+      transition: opacity 0.3s ease;
+    }
+
+    /* Modal Content (The Image) */
+    .modal-content {
+      margin: auto;
+      display: block;
+      width: auto;
+      max-width: 85%;
+      max-height: 85%;
+      animation-name: zoom;
+      animation-duration: 0.4s;
+    }
+
+    /* Animation */
+    @keyframes zoom {
+      from {transform:scale(0)} 
+      to {transform:scale(1)}
+    }
+
+    /* The Close Button */
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 35px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .modal-close:hover,
+    .modal-close:focus {
+      color: #bbb;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* --- Image & Figure Alignment Styles --- */
+
+    figure {
+        margin: 1.5rem 0 0 0; /* Add space on top, remove other default margins */
+        padding: 1rem;
+        /* Using a variable from style.css with a fallback */
+        background-color: var(--color-background, #121212); 
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+
+        /* Use flexbox for easy centering */
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center;     /* Center vertically */
+    }
+
+    /* Make thumbnail images clickable and responsive */
+    .card img {
+        max-width: 100%; /* Prevents the image from overflowing its container */
+        height: auto;    /* Maintains aspect ratio */
+        border-radius: 8px; /* Slightly rounded corners for the image itself */
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .card img:hover {
+        transform: scale(1.03); /* Slight zoom effect on hover */
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gallery</h1>
+    <nav>
+      <a href="index.html">Overview</a>
+      <a href="gallery.html" class="active">Gallery</a>
+      <a href="code.html">Code</a>
+      <a href="breakdown.html">Breakdown</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>📸 ESP32 Serial Monitor</h2>
+      <p>After flashing the firmware, the serial monitor is the first place to check the status. This output shows the ESP32 successfully connecting to the local Wi-Fi network, obtaining an IP address (<code>192.168.4.1</code> in this case), and confirming that the TCP server task has started and is listening for a connection on port 3333.</p>
+      <figure>
+        <!-- The image is now centered within this figure box -->
+        <img src="images/screenshot1.jpeg" alt="Serial Monitor Output" onclick="openModal(this)"/>
+      </figure>
+    </section>
+    
+    <section class="card">
+        <h2>📡 Netcat Client Session</h2>
+        <p>This screenshot shows a terminal on a host computer acting as a client. The <code>nc</code> (Netcat) command is used to open a TCP connection to the ESP32's IP address and port. Once connected, any text typed into the terminal ("Hello from PC") is sent to the ESP32, which then echoes it back, confirming the end-to-end communication is working perfectly.</p>
+        <figure>
+            <!-- The image is now centered within this figure box -->
+            <img src="images/screenshot2.jpeg" alt="Netcat Session with ESP32" onclick="openModal(this)"/>
+        </figure>
+    </section>
+  </main>
+
+  <!-- The Modal -->
+  <div id="imageModal" class="modal">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="modalImage">
+  </div>
+
+  <footer>
+    <p>© 2025 Made by Adityakrishna Vinod , Abhinav KL, Ardra R Nair, Snigdha Sivakumar, Unnikrishnan Jayan</p>
+  </footer>
+
+  <script>
+    // Get the modal elements
+    var modal = document.getElementById("imageModal");
+    var modalImg = document.getElementById("modalImage");
+
+    // Function to open the modal and display the clicked image
+    function openModal(imgElement) {
+      modal.style.display = "block";
+      modalImg.src = imgElement.src;
+    }
+
+    // Function to close the modal
+    function closeModal() { 
+      modal.style.display = "none";
+    }
+    
+    // Close the modal if the user clicks anywhere outside of the image
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+  </script>
+</body>
+</html>
+

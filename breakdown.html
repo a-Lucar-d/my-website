@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Code Breakdown</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Code Breakdown</h1>
+    <nav>
+      <a href="index.html">Overview</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="code.html">Code</a>
+      <a href="breakdown.html" class="active">Breakdown</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>🧠 How the Code Works: A Deeper Dive</h2>
+      <p>The application is built on the ESP-IDF framework, which uses FreeRTOS for multitasking. This allows us to handle Wi-Fi connectivity and the TCP server logic concurrently without blocking each other.</p>
+
+      <h3>1. <code>app_main()</code> - The Entry Point</h3>
+      <p>This is the first function that runs. Its job is simple but crucial:</p>
+      <ul>
+          <li><strong>Initialize NVS:</strong> It first calls <code>nvs_flash_init()</code>. The Non-Volatile Storage (NVS) library is used by ESP-IDF to save key-value pairs to flash memory. The Wi-Fi driver uses it to store calibration data, ensuring stable performance. It must be initialized before any network operations.</li>
+          <li><strong>Start Wi-Fi:</strong> It calls our custom <code>wifi_init_sta()</code> function to connect the ESP32 to the local network.</li>
+          <li><strong>Launch Server Task:</strong> Once Wi-Fi is connected, it creates a new FreeRTOS task by calling <code>xTaskCreate()</code>. This task runs the <code>tcp_server_task</code> function, dedicating a separate execution context to handle all networking logic.</li>
+      </ul>
+
+      <h3>2. <code>wifi_init_sta()</code> & <code>wifi_event_handler()</code> - The Connectivity Core</h3>
+      <p>These two functions work together to manage the Wi-Fi connection.</p>
+       <ul>
+          <li><code>wifi_init_sta()</code> configures the ESP32 in Station (STA) mode, meaning it acts as a client to a Wi-Fi router. It sets the SSID and password, then registers <code>wifi_event_handler()</code> to listen for specific events.</li>
+          <li>The most important part is the <code>xEventGroupWaitBits()</code> call. This is a FreeRTOS feature that pauses the function's execution until a signal is received from another part of the program. It waits for the "connected" signal from the event handler.</li>
+          <li><code>wifi_event_handler()</code> is the callback function. The ESP-IDF event loop calls it automatically when network events occur, such as:
+              <ul>
+                <li><code>WIFI_EVENT_STA_DISCONNECTED</code>: If the Wi-Fi drops, this handler attempts to reconnect a few times before giving up.</li>
+                <li><code>IP_EVENT_STA_GOT_IP</code>: This is the success case! When the router assigns an IP address to the ESP32, this handler gets the IP, logs it, and sets the <code>WIFI_CONNECTED_BIT</code> in the event group. This unblocks <code>wifi_init_sta()</code>, allowing <code>app_main</code> to proceed.</li>
+              </ul>
+          </li>
+      </ul>
+
+
+      <h3>3. <code>tcp_server_task()</code> - The Heart of the Server</h3>
+      <p>This function runs in an infinite loop within its own task and performs the classic socket server workflow:</p>
+      <ol>
+          <li><strong><code>socket()</code>:</strong> Creates a socket, which is the endpoint for network communication. We specify <code>AF_INET</code> for IPv4 and <code>SOCK_STREAM</code> for TCP.</li>
+          <li><strong><code>bind()</code>:</strong> Assigns the socket to a specific port (<code>3333</code>) on the ESP32's IP address. The server now "owns" this port.</li>
+          <li><strong><code>listen()</code>:</strong> Puts the socket into a listening state, ready to accept incoming connections from clients.</li>
+          <li><strong><code>accept()</code>:</strong> This is a blocking call. The task pauses here, waiting for a client to connect. When a client (like Netcat) makes a request, <code>accept()</code> returns a *new* socket that is dedicated to communicating with that specific client.</li>
+          <li><strong><code>recv()</code>/<code>send()</code> Loop:</strong> Once a client is accepted, the code enters a loop. It waits to receive data with <code>recv()</code>. When data arrives, it immediately sends the exact same data back using <code>send()</code>, achieving the "echo" functionality.</li>
+          <li><strong>Disconnect:</strong> If <code>recv()</code> returns 0, it means the client has closed the connection. The server then closes the client-specific socket and loops back to <code>accept()</code>, waiting for a new client.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Made by Adityakrishna Vinod , Abhinav KL, Ardra R Nair, Snigdha Sivakumar, Unnikrishnan Jayan</p>
+  </footer>
+</body>
+</html>
+
