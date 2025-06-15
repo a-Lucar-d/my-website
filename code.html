@@ -24,7 +24,8 @@
     <section class="card">
       <h2>📄 ESP-IDF TCP Server Source Code</h2>
       <p>This is the complete C source file for the TCP echo server, written for the ESP-IDF framework. It includes all necessary headers, Wi-Fi initialization, event handling, and the main server task.</p>
-      <pre><code class="language-c">
+      <pre>
+	<code class="language-c">
 /* * ESP32 TCP Echo Server
  *
  * This code creates a TCP server on the ESP32 that listens on a specific port.
@@ -187,8 +188,7 @@ void app_main(void) {
 
     // Start TCP server
     xTaskCreate(tcp_server_task, "tcp_server", 4096, NULL, 5, NULL);
-}
-      </code></pre>
+}</code></pre>
       <a href="code/tcp_server.c" class="download-link" download>📥 Download Full Source (tcp_server.c)</a>
       <a href="code/CN_REPORT.pdf" class="download-link" download>📥 IEEE Report</a>
     </section>
