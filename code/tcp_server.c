@@ -121,7 +121,17 @@ void tcp_server_task(void *pvParameters) {
                 break;
             } else {
                 rx_buffer[len] = '\0';
-                ESP_LOGI(TAG, "Received %d bytes: '%s'", len, rx_buffer);
+                for(int i=0;i<len;i++)
+		{
+		if(rx_buffer[i] == '\n' || rx_buffer[i] == '\r')
+		{
+		rx_buffer[i] = '\0';
+		}
+		}
+		
+		ESP_LOGI(TAG, "Received %d bytes: '%s' ", len, rx_buffer);
+		//printf("%s",rx_buffer);		
+		
                 // Echo back
                 send(client_socket, rx_buffer, len, 0);
             }
@@ -144,4 +154,3 @@ void app_main(void) {
     // Start TCP server
     xTaskCreate(tcp_server_task, "tcp_server", 4096, NULL, 5, NULL);
 }
-
