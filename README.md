@@ -34,10 +34,10 @@ IPV6 = 'FE80::32AE:A4FF:FE80:5288'
 
 This example can be run on any commonly available ESP32 development board.
 
-## Configure the project
+## Configure the IDF environment
 
 ```
-make menuconfig
+get_idf
 ```
 
 Set following parameter under Serial Flasher Options:
@@ -59,7 +59,10 @@ Set following parameters under Example Configuration Options:
 Build the project and flash it to the board, then run monitor tool to view serial output:
 
 ```
-make -j4 flash monitor
+idf.py build
+idf.py flash
+
+picocom -b 115200 /dev/ttyUSB0
 ```
 
 (To exit the serial monitor, type ``Ctrl-]``.)
