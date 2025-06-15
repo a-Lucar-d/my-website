@@ -24,17 +24,27 @@
     <section class="card">
       <h2>📄 ESP-IDF TCP Server Source Code</h2>
       <p>This is the complete C source file for the TCP echo server, written for the ESP-IDF framework. It includes all necessary headers, Wi-Fi initialization, event handling, and the main server task.</p>
+	
 	<pre><code class="language-c">
+/* * ESP32 TCP Echo Server
+ *
+ * This code creates a TCP server on the ESP32 that listens on a specific port.
+ * When a client connects, it will echo back any data it receives.
+ *
+ * Written for ESP-IDF v4.x/v5.x
+ */
+
+// Standard C headers
 #include &lt;string.h&gt;
 #include &lt;sys/param.h&gt;
 #include &lt;sys/socket.h&gt;
 #include &lt;netinet/in.h&gt;
 #include &lt;unistd.h&gt;
 
+// ESP-IDF headers
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
-
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -42,42 +52,43 @@
 #include "esp_netif.h"
 #include "nvs_flash.h"
 
+// Wi-Fi credentials and server port
 #define WIFI_SSID      "OPPO A78 5G"
 #define WIFI_PASS      "123123123"
 #define PORT           3333
 
 static const char *TAG = "tcp_server";
-
 static EventGroupHandle_t wifi_event_group;
 #define WIFI_CONNECTED_BIT BIT0
 
-// Wi-Fi event handler
+// Event handler for Wi-Fi and IP events
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                int32_t event_id, void* event_data) {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        esp_wifi_connect();
+        esp_wifi_connect(); // Try to connect when Wi-Fi starts
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         ESP_LOGI(TAG, "Disconnected. Reconnecting...");
-        esp_wifi_connect();
+        esp_wifi_connect(); // Reconnect if disconnected
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        // Successfully got IP address
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
+        ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event-&gt;ip_info.ip));
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }
 
+// Initialize Wi-Fi in station mode
 void wifi_init_sta(void) {
     wifi_event_group = xEventGroupCreate();
-
     esp_netif_create_default_wifi_sta();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID,
-                                                        &wifi_event_handler, NULL, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
-                                                        &wifi_event_handler, NULL, NULL));
+    // Register event handlers
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL, NULL));
 
+    // Set Wi-Fi credentials
     wifi_config_t wifi_config = {
         .sta = {
             .ssid = WIFI_SSID,
@@ -91,15 +102,18 @@ void wifi_init_sta(void) {
 
     ESP_LOGI(TAG, "Wi-Fi STA init complete. Connecting...");
 
+    // Block until connected
     xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, false, true, portMAX_DELAY);
 }
 
+// TCP server task
 void tcp_server_task(void *pvParameters) {
     int server_socket, client_socket;
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_len = sizeof(client_addr);
     char rx_buffer[128];
 
+    // Create socket
     server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (server_socket &lt; 0) {
         ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
@@ -107,10 +121,12 @@ void tcp_server_task(void *pvParameters) {
         return;
     }
 
+    // Configure server address
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(PORT);
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
+    // Bind the socket to the address
     if (bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) != 0) {
         ESP_LOGE(TAG, "Socket unable to bind: errno %d", errno);
         close(server_socket);
@@ -118,6 +134,7 @@ void tcp_server_task(void *pvParameters) {
         return;
     }
 
+    // Listen for incoming connections
     if (listen(server_socket, 1) != 0) {
         ESP_LOGE(TAG, "Error occurred during listen: errno %d", errno);
         close(server_socket);
@@ -137,6 +154,7 @@ void tcp_server_task(void *pvParameters) {
 
         ESP_LOGI(TAG, "Client connected");
 
+        // Handle client communication
         while (1) {
             int len = recv(client_socket, rx_buffer, sizeof(rx_buffer) - 1, 0);
             if (len &lt; 0) {
@@ -147,33 +165,44 @@ void tcp_server_task(void *pvParameters) {
                 break;
             } else {
                 rx_buffer[len] = '\0';
-                for(int i=0;i&lt;len;i++) {
+
+                // Sanitize newline characters
+                for(int i = 0; i &lt; len; i++) {
                     if(rx_buffer[i] == '\n' || rx_buffer[i] == '\r') {
                         rx_buffer[i] = '\0';
                     }
                 }
 
-                ESP_LOGI(TAG, "Received %d bytes: '%s' ", len, rx_buffer);
+                // Log received message
+                ESP_LOGI(TAG, "Received %d bytes: '%s'", len, rx_buffer);
+
+                // Echo back the same message
                 send(client_socket, rx_buffer, len, 0);
             }
         }
 
+        // Close client socket
         close(client_socket);
     }
 
+    // Close server socket (unreachable)
     close(server_socket);
     vTaskDelete(NULL);
 }
 
+// Main application entry point
 void app_main(void) {
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK(nvs_flash_init());              // Initialize NVS
+    ESP_ERROR_CHECK(esp_netif_init());              // Initialize TCP/IP
+    ESP_ERROR_CHECK(esp_event_loop_create_default());// Create event loop
 
     wifi_init_sta();  // Connect to Wi-Fi
 
+    // Create TCP server task
     xTaskCreate(tcp_server_task, "tcp_server", 4096, NULL, 5, NULL);
 }
+
+		
 </code></pre>
 
 	    
