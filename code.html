@@ -24,20 +24,12 @@
     <section class="card">
       <h2>📄 ESP-IDF TCP Server Source Code</h2>
       <p>This is the complete C source file for the TCP echo server, written for the ESP-IDF framework. It includes all necessary headers, Wi-Fi initialization, event handling, and the main server task.</p>
-      <pre>
-	<code class="language-c">
-/* * ESP32 TCP Echo Server
- *
- * This code creates a TCP server on the ESP32 that listens on a specific port.
- * When a client connects, it will echo back any data it receives.
- *
- * Written for ESP-IDF v4.x/v5.x
- */
-#include <string.h>
-#include <sys/param.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
+	<pre><code class="language-c">
+#include &lt;string.h&gt;
+#include &lt;sys/param.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+#include &lt;unistd.h&gt;
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -99,7 +91,6 @@ void wifi_init_sta(void) {
 
     ESP_LOGI(TAG, "Wi-Fi STA init complete. Connecting...");
 
-    // Wait for connection
     xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, false, true, portMAX_DELAY);
 }
 
@@ -110,7 +101,7 @@ void tcp_server_task(void *pvParameters) {
     char rx_buffer[128];
 
     server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
-    if (server_socket < 0) {
+    if (server_socket &lt; 0) {
         ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
         vTaskDelete(NULL);
         return;
@@ -139,7 +130,7 @@ void tcp_server_task(void *pvParameters) {
     while (1) {
         ESP_LOGI(TAG, "Waiting for client...");
         client_socket = accept(server_socket, (struct sockaddr *)&client_addr, &addr_len);
-        if (client_socket < 0) {
+        if (client_socket &lt; 0) {
             ESP_LOGE(TAG, "Unable to accept connection: errno %d", errno);
             continue;
         }
@@ -148,7 +139,7 @@ void tcp_server_task(void *pvParameters) {
 
         while (1) {
             int len = recv(client_socket, rx_buffer, sizeof(rx_buffer) - 1, 0);
-            if (len < 0) {
+            if (len &lt; 0) {
                 ESP_LOGE(TAG, "recv failed: errno %d", errno);
                 break;
             } else if (len == 0) {
@@ -156,18 +147,13 @@ void tcp_server_task(void *pvParameters) {
                 break;
             } else {
                 rx_buffer[len] = '\0';
-                for(int i=0;i<len;i++)
-		{
-		if(rx_buffer[i] == '\n' || rx_buffer[i] == '\r')
-		{
-		rx_buffer[i] = '\0';
-		}
-		}
-		
-		ESP_LOGI(TAG, "Received %d bytes: '%s' ", len, rx_buffer);
-		//printf("%s",rx_buffer);		
-		
-                // Echo back
+                for(int i=0;i&lt;len;i++) {
+                    if(rx_buffer[i] == '\n' || rx_buffer[i] == '\r') {
+                        rx_buffer[i] = '\0';
+                    }
+                }
+
+                ESP_LOGI(TAG, "Received %d bytes: '%s' ", len, rx_buffer);
                 send(client_socket, rx_buffer, len, 0);
             }
         }
@@ -186,9 +172,11 @@ void app_main(void) {
 
     wifi_init_sta();  // Connect to Wi-Fi
 
-    // Start TCP server
     xTaskCreate(tcp_server_task, "tcp_server", 4096, NULL, 5, NULL);
-}</code></pre>
+}
+</code></pre>
+
+	    
       <a href="code/tcp_server.c" class="download-link" download>📥 Download Full Source (tcp_server.c)</a>
       <a href="code/CN_REPORT.pdf" class="download-link" download>📥 IEEE Report</a>
     </section>
